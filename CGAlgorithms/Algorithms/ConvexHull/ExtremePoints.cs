@@ -9,10 +9,8 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 {
     public class ExtremePoints : Algorithm
     {
-        bool[] notExtremePoint ;
-        double[] lenght;
-
-        public int callenght(int a,int b,int c, List<Point> points)
+        int[] Not_Extrem_Point;
+        public int avilable_tringle(int a, int b, int c, List<Point> points)
         {
             Line l1 = new Line(points[a], points[b]);
             Line l2 = new Line(points[b], points[c]);
@@ -25,19 +23,22 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             if (bc + ca <= ab) { return c; }
             if (ab + bc <= ca) { return b; }
             if (ca + ab <= bc) { return a; }
-            return -50000;
+            //the same
+            //if (HelperMethods.PointOnSegment(points[c], points[a], points[b])) { return c; }
+            //if (HelperMethods.PointOnSegment(points[b], points[a], points[c])) { return b; }
+            //if (HelperMethods.PointOnSegment(points[a], points[b], points[c])) { return a; }
+            return -5000000;
         }
-
-        public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons,
-            ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
+        public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
-            if (points.Count == 1)
+            List<Point> extrem_points = new List<Point>();
+            if (points.Count == 1 || points.Count == 2)
             {
-                outPoints = points;
+                extrem_points = points;
             }
             else
             {
-                notExtremePoint = new bool[(points.Count)];
+                Not_Extrem_Point = new int[(points.Count)];
                 for (int a = 0; a < points.Count; a++)//n
                 {
                     for (int b = a + 1; b < points.Count; b++)//n
@@ -45,38 +46,35 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                         for (int c = b + 1; c < points.Count; c++)//n
                         {
                             //we must check if this point contribute polygone with allowed lines 
-
                             //من الاخر لازم اشوف الاضلاع دي تصلخ تكون اضلاع مثلث والا لا عندي حاجه بتقول لازم يكون مجموع اي ضلعين في المثلث اكبر من الضلع التالت 
-                            int check = callenght(a, b, c, points);
-
-                            if (check == c) { notExtremePoint[c] = true; continue; }
-                            if (check == b) { notExtremePoint[b] = true; break; }
-                            if (check == a) { notExtremePoint[a] = true; break; }
-
+                            if (avilable_tringle(a, b, c, points) == c) { Not_Extrem_Point[c] += 1; continue; }//true 
+                            else if (avilable_tringle(a, b, c, points) == b) { Not_Extrem_Point[b] += 1; break; }//true
+                            else if (avilable_tringle(a, b, c, points) == a) { Not_Extrem_Point[a] += 1; break; }//true
                             for (int d = 0; d < points.Count; d++)
                             {
-
                                 if (d != a && d != b && d != c)
                                 {
                                     if (HelperMethods.PointInTriangle(points[d], points[a], points[b], points[c]) == Enums.PointInPolygon.Inside)
                                     {
-                                        notExtremePoint[d] = true;
+                                        Not_Extrem_Point[d] += 1;//true
                                     }
                                 }
                             }
-
                         }
                     }
-
                 }
                 for (int i = 0; i < points.Count; i++)
-                    if (notExtremePoint[i] != true)
-                        outPoints.Add(points[i]);
-
+                    if (Not_Extrem_Point[i] >= 1)//any point 0 is extreme//to understand make else 
+                        continue;
+                    else
+                    {
+                        if (!extrem_points.Contains(points[i]))
+                            extrem_points.Add(points[i]);
+                    }
             }
+            outPoints = extrem_points;
 
         }
-
         public override string ToString()
         {
             return "Convex Hull - Extreme Points";

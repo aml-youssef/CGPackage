@@ -25,9 +25,9 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             return equation;
         }
 
-        private double getLength(Point p1, Point p2, Point point)
+        private double getLength(Point start, Point end, Point point)
         {
-            lineEquation equation = getLineEquation(p1, p2);
+            lineEquation equation = getLineEquation(start, end);
             double perpendicularSlope, b, x, y;
             if (equation.slope == 0)
             {
