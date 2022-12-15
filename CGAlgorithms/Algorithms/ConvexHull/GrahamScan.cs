@@ -30,7 +30,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             return minY;
         }
         //sort by angels
-        public static List<KeyValuePair<Point, double>> Calc_angels_And_sort(Line Horizontal_Line, List<Point> points,Point minY)
+        public static List<KeyValuePair<Point, double>> Calc_angels_And_sort(Line Horizontal_Line, List<Point> points, Point minY)
         {
             List<KeyValuePair<Point, double>> Sorted_Points = new List<KeyValuePair<Point, double>>();
             double crossProduct, dotProduct, radAngel, degAngel;
@@ -55,7 +55,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             return Sorted_Points;
 
         }
-        
+
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
             //minumun point
