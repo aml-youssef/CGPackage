@@ -30,36 +30,51 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             return minY;
         }
         //sort by angels
-        
-        public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
+        public static List<KeyValuePair<Point, double>> Calc_angels_And_sort(Line Horizontal_Line, List<Point> points,Point minY)
         {
-
-            Point minY = minumum_point(points);
-
-            Point intiPoint = new Point(minY.X + 1, minY.Y);
-            Line Horizontal_Line = new Line(minY, intiPoint);
-            points.Remove(minY);
-
             List<KeyValuePair<Point, double>> Sorted_Points = new List<KeyValuePair<Point, double>>();
             double crossProduct, dotProduct, radAngel, degAngel;
+            //start point
             Point start_point = new Point((Horizontal_Line.End.X - Horizontal_Line.Start.X), (Horizontal_Line.End.Y - Horizontal_Line.Start.Y));
+            //loop on points to sort with angels
             for (int i = 0; i < points.Count; i++)
             {
                 Point tmp = new Point((points[i].X - Horizontal_Line.Start.X), (points[i].Y - Horizontal_Line.Start.Y));
                 crossProduct = CGUtilities.HelperMethods.CrossProduct(start_point, tmp);
                 dotProduct = dotproduct(start_point, tmp);
-
+                //radian angel
                 radAngel = Math.Atan2(dotProduct, crossProduct);
+                //convert to degrees
                 degAngel = (180 / Math.PI) * (radAngel);
+                //add to list
                 Sorted_Points.Add(new KeyValuePair<Point, double>(points[i], degAngel));
             }
+            //sort the list
             Sorted_Points.Sort((x, y) => x.Value.CompareTo(y.Value));
             Sorted_Points.Add(new KeyValuePair<Point, double>(minY, 0));
+            return Sorted_Points;
 
+        }
+        
+        public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
+        {
+            //minumun point
+            Point minY = minumum_point(points);
+            //intialization of the line
+            Point intiPoint = new Point(minY.X + 1, minY.Y);
+            Line Horizontal_Line = new Line(minY, intiPoint);
+            //remove the minumim from list of points
+            points.Remove(minY);
+            //sorted points
+            List<KeyValuePair<Point, double>> Sorted_Points = Calc_angels_And_sort(Horizontal_Line, points, minY);
+            //algorithm
+
+            //intialize stack
             Stack<Point> hull = new Stack<Point>();
             hull.Push(minY);
             hull.Push(Sorted_Points[0].Key);
             Point top, preTop;
+            //looping on sorted points
 
             for (int i = 1; i < Sorted_Points.Count; i++)
             {
