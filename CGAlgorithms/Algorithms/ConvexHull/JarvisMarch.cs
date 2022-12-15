@@ -12,62 +12,67 @@ namespace CGAlgorithms.Algorithms.ConvexHull
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
 
+            bool check_on_segment_or_out = false;
+            bool check_turn = false;
+            bool check_colinear = false;
             Point StartPointOnHull = points.OrderBy(point => point.X).FirstOrDefault();//minim x
             int j = 0;
-            Point ex = new Point(StartPointOnHull.X, StartPointOnHull.Y - 1);
+            Point Endpoint = null;
             List<Point> extrem_points = new List<Point>();
-
             while (j < points.Count)//points numper//h
             {
-                if (!extrem_points.Contains(StartPointOnHull))
-                    extrem_points.Add(StartPointOnHull);
 
-                Point Endpoint = points.FirstOrDefault();
-                double Maximum_Angle = 0;
-                double distance = 0;
-                double largest_distance = 0;
-                double all_round = 2 * Math.PI;
-                Line l1 = new Line(ex, StartPointOnHull);
-                Point v1 = HelperMethods.GetVector(l1);
+                extrem_points.Add(StartPointOnHull);
+                Endpoint = points.FirstOrDefault();
 
                 for (int i = 0; i < points.Count; i++)//points number//n
                 {
-                    Line l2 = new Line(StartPointOnHull, points[i]);
-                    Point v2 = HelperMethods.GetVector(l2);
-                    double cross = HelperMethods.CrossProduct(v1, v2);
-                    double dot = (v1.X * v2.X) + (v1.Y * v2.Y);
-                    double angle = Math.Atan2(cross, dot);
-                    if (angle < 0)//-ve
-                        angle = angle + (all_round);
-
-                    distance = v2.Magnitude();
-
-                    if (angle >= Maximum_Angle)
+                    if (i == 0) continue;
+                    bool equality = (StartPointOnHull == Endpoint);
+                    if (equality)
                     {
-                        if (angle == Maximum_Angle)
+                        Endpoint = points[i];
+                    }
+                    else if (StartPointOnHull != Endpoint)
+                    {
+                        check_turn = HelperMethods.CheckTurn(new Line(StartPointOnHull, Endpoint), points[i]) == Enums.TurnType.Left;
+                        if (check_turn == false && StartPointOnHull != Endpoint)
                         {
-                            if (distance >= largest_distance)
+                            check_colinear = HelperMethods.CheckTurn(new Line(StartPointOnHull, points[i]), Endpoint) == Enums.TurnType.Colinear;
+                            if (check_colinear)
                             {
-                                largest_distance = distance;
-                                Endpoint = points[i];
+                                Line l1 = new Line(StartPointOnHull, points[i]);
+
+                                Line l2 = new Line(StartPointOnHull, Endpoint);
+
+                                Point v1 = HelperMethods.GetVector(l1);
+
+                                Point v2 = HelperMethods.GetVector(l2);
+
+                                check_on_segment_or_out = v1.Magnitude() > v2.Magnitude();//ab>bc for example
                             }
                         }
-                        else
-                        {
-                            largest_distance = distance;
-                            Maximum_Angle = angle;
-                            Endpoint = points[i];
-                        }
+                    }
+
+
+                    if ((check_turn) || (check_colinear && check_on_segment_or_out))
+                    {
+                        Endpoint = points[i];
                     }
                 }
                 outLines.Add(new Line(StartPointOnHull, Endpoint));
-                polygons.Add(new Polygon(outLines));
-                ex = StartPointOnHull;
                 StartPointOnHull = Endpoint;
                 if (Endpoint == extrem_points.FirstOrDefault()) break;
+
                 j++;
             }
             outPoints = extrem_points;
+
+
+
+
+
+
         }
 
         public override string ToString()
