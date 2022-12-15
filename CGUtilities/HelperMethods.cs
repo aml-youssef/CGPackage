@@ -48,6 +48,7 @@ namespace CGUtilities
         {
             return a.X * b.Y - a.Y * b.X;
         }
+
         public static bool PointOnRay(Point p, Point a, Point b)//is same  direction?
         {
             if (a.Equals(b)) return true;
