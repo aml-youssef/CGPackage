@@ -20,14 +20,14 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             int index = 0;
             for (int i = 0; i < points.Count; i++)
             {
-                if (points[i].Y < MIN)
+                if (points[i].X < MIN)
                 {
-                    MIN = points[i].Y;
+                    MIN = points[i].X;
                     index = i;
                 }
             }
-            Point minY = points[index];
-            return minY;
+            Point minumim = points[index];
+            return minumim;
         }
         //sort by angels
         public static List<KeyValuePair<Point, double>> Calc_angels_And_sort(Line Horizontal_Line, List<Point> points, Point minY)
@@ -35,15 +35,17 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             List<KeyValuePair<Point, double>> Sorted_Points = new List<KeyValuePair<Point, double>>();
             double crossProduct, dotProduct, radAngel, degAngel;
             //start point
-            Point start_point = new Point((Horizontal_Line.End.X - Horizontal_Line.Start.X), (Horizontal_Line.End.Y - Horizontal_Line.Start.Y));
+            //Point start_point = new Point((Horizontal_Line.End.X - Horizontal_Line.Start.X), (Horizontal_Line.End.Y - Horizontal_Line.Start.Y));
+            Point start_point = new Point((Horizontal_Line.End.Y - Horizontal_Line.Start.Y), (Horizontal_Line.End.X - Horizontal_Line.Start.X));
             //loop on points to sort with angels
             for (int i = 0; i < points.Count; i++)
             {
-                Point tmp = new Point((points[i].X - Horizontal_Line.Start.X), (points[i].Y - Horizontal_Line.Start.Y));
+                Point tmp = new Point((points[i].Y - Horizontal_Line.Start.Y), (points[i].X - Horizontal_Line.Start.X));
                 crossProduct = CGUtilities.HelperMethods.CrossProduct(start_point, tmp);
                 dotProduct = dotproduct(start_point, tmp);
                 //radian angel
-                radAngel = Math.Atan2(dotProduct, crossProduct);
+                //radAngel = Math.Atan2(dotProduct, crossProduct);
+                radAngel = Math.Atan2(crossProduct, dotProduct);
                 //convert to degrees
                 degAngel = (180 / Math.PI) * (radAngel);
                 //add to list
@@ -58,7 +60,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
-            //minumun point
+            //minumun point to x
             Point minY = minumum_point(points);
             //intialization of the line
             Point intiPoint = new Point(minY.X + 1, minY.Y);
@@ -94,8 +96,9 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 }
                 hull.Push(Sorted_Points[i].Key);
             }
+
             while (hull.Count > 0)
-                outPoints.Add(hull.Pop());
+            { outPoints.Add(hull.Pop()); }
             outPoints.RemoveAt(outPoints.Count - 1);
         }
 
